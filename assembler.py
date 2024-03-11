@@ -1,4 +1,8 @@
+import sys
 program_counter=0
+error1=" "
+pc=-1
+flag=0
 def complement(binarynumber):
     ans = ""
     while binarynumber and binarynumber[-1] != "1":
@@ -40,4 +44,32 @@ def decimal_binary_32bits(b):
         ans="0"*(32-cnt)+ans
         ans=complement(ans)
     return ans
+
+opcode_R = {"add":"0110011","sub":"0110011","sll":"0110011","slt":"0110011","sltu":"0110011","xor":"0110011","srl":"0110011","or":"0110011","and":"0110011"}
+R_func7={"add":"0000000", "sub":"0100000", "sll":"0000000", "slt":"0000000", "sltu":"0000000", "xor":"0000000", "srl":"0000000", "or":"0000000", "and":"0000000"}
+R_func3={"add":"000", "sub":"000", "sll":"001","slt":"010","sltu":"011","xor":"100","srl":"101","or":"110","and":"111"}
+list_R = ["add","sub","sll","slt","sltu","xor","srl","or","and"]
+
+
+opcode_I={"lw":"0000011","addi":"0010011","sltiu":"0010011","jalr":"1100111"}
+I_func3={"lw":"010","addi":"000","sltiu":"011","jalr":"000"}
+list_I=["lw","addi","sltiu","jalr"]
+
+opcode_B={"beq":"1100011","bne":"1100011","blt":"1100011","bge":"1100011","bltu":"1100011","bgeu":"1100011"}
+list_B=["beq","bne","blt","bge","bltu","bgeu"]
+B_func3={"beq":"000","bne":"001","blt":"100","bge":"101","bltu":"110","bgeu":"111"}
+
+opcode_S={"sw":"0100011"}
+S_func3={"sw":"010"}
+list_S=["sw"]
+
+opcode_U={"lui":"011011", "auipc": "0010111"}
+list_U=["lui","auipc"]
+
+opcode_J={"jal":"1101111"}
+list_J=["jal"]
+
+
+register_encoding = {"zero": "00000","ra":"00001","sp":"00010","gp":"00011","tp":"00100","t0":"00101","t1":"00110","t2":"00111","s0":"01000","fp":"01000","s1":"01001","a0":"01010","a1":"01011","a2":"01100","a3":"01101","a4":"01110","a5":"01111","a6":"10000","a7":"10001","s2":"10010","s3":"10011","s4":"10100","s5":"10101","s6":"10110","s7":"10111","s8":"11000","s9":"11001","s10":"11010","s11":"11011","t3":"11100","t4":"11101","t5":"11110","t6":"11111"}
+
 
