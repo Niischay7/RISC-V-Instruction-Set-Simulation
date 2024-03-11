@@ -165,3 +165,42 @@ def func_S(instruction):
         flag=1
         error1="no operation belongs to the above code snippet error in"
         pc=program_counter
+list1=[]
+
+with open(r"C:\Users\HP\OneDrive\Desktop\co project\CO Project evaluation framework\automatedTesting\tests\assembly\simpleBin\test3.txt", "r") as file:
+    data = file.readlines()
+
+instruction_processed=[]
+for instruction in data:
+    instructions=instruction.split()
+    instructions[-1]=instructions[-1].split(",")
+    for int1 in instructions[-1]:
+        instructions.insert(-1,int1)
+    instructions.pop(-1)       
+    instruction_processed.append(instructions)
+
+
+dict={}
+dict2={}
+for instruction_s in instruction_processed:
+    if(instruction_s[0][-1]==":"):
+        dict[instruction_s[0][0:-1]]=program_counter
+        program_counter+=4
+        instruction_s.pop(0)
+    else:
+        program_counter+=4
+
+if(not bool(dict)):
+    for instruction_s in instruction_processed:
+        if instruction_s[0] in list_R:
+            list1.append(func_R(instruction_s))
+        elif instruction_s[0] in list_I:
+            list1.append(func_I(instruction_s))
+        elif instruction_s[0] in list_B:
+            list1.append(func_B(instruction_s))
+        elif instruction_s[0] in list_S:
+            list1.append(func_S(instruction_s))
+        elif instruction_s[0] in list_U:
+            list1.append(func_U(instruction_s))
+        elif instruction_s[0] in list_J:
+            list1.append(func_J(instruction_s))
