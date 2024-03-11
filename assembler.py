@@ -133,4 +133,35 @@ def func_J(instruction):
         flag=1
         error1="no operation belongs to the above code snippet error in"
         pc=program_counter
-
+def func_B(instruction):
+    try:
+        global program_counter
+        answer=decimal_binary_32bits(instruction[-1])[-13]+decimal_binary_32bits(instruction[-1])[-11:-5]+register_encoding[instruction[2]]+register_encoding[instruction[1]]+B_func3[instruction[0]]+decimal_binary_32bits(instruction[-1])[-5:-1]+decimal_binary_32bits(instruction[-1])[-12]+opcode_B[instruction[0]]
+        program_counter+=4
+        return answer
+    except:
+        global program_counter
+        flag=1
+        error1="no operation belongs to the above code snippet error in"
+        pc=program_counter
+def func_S(instruction):
+    global program_counter
+    answer= " "
+    try:
+        if instruction[0] == "sw":
+            instruction.append(instruction[2][-3] + instruction[2][-2])
+            instruction[2]=(instruction[2])[0:-4]
+            imm_binary=decimal_binary_32bits(instruction[2])
+            answer = imm_binary[-12:-5]+register_encoding[instruction[1]]+ register_encoding[instruction[3]]+S_func3[instruction[0]]+imm_binary[27:32]+opcode_S[instruction[0]]
+            program_counter+=4
+            return answer
+        else:
+            imm_binary=decimal_binary_32bits(instruction[2])
+            answer = imm_binary[-5:-12]+ register_encoding[instruction[1]]+ register_encoding[instruction[3]]+S_func3[instruction[0]]+imm_binary[29:33]+opcode_S[instruction[0]]
+            program_counter+=4
+            return answer
+    except:
+        global program_counter
+        flag=1
+        error1="no operation belongs to the above code snippet error in"
+        pc=program_counter
