@@ -1,4 +1,4 @@
-import sys
+
 program_counter=0
 error1=" "
 pc=-1
@@ -259,3 +259,13 @@ else:
                 list1.append(func_J(instruction_s))
             cnt+=4
 
+if flag==1:
+    f=open("code.txt","w")
+    f.write(error1)
+    f.write(pc)
+else:
+    f=open("code.txt","w")
+    for i in list1:
+        f.write(i)
+        f.write("\n")
+    f.close()
