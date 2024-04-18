@@ -1,6 +1,6 @@
-import sys
-input_file=sys.argv[1]
-output_file=sys.argv[2]
+# import sys
+# input_file=sys.argv[1]
+# output_file=sys.argv[2]
 
 def unsigned(value):
     # Check if the value is less than 0
@@ -181,11 +181,12 @@ def b_type(instruction):
             PC+=4
     #print program counter
 
-    #print("0b"+decimal_binary_32bits(PC)+" ")
-    f.write("0b"+decimal_binary_32bits(PC)+" ")
+    print("0b"+decimal_binary_32bits(PC),end=" ")
+    # f.write("0b"+decimal_binary_32bits(PC)+" ")
     for i in list(dict.keys()):
-      #print("0b"+decimal_binary_32bits(dict[i])+" ")
-      f.write("0b"+decimal_binary_32bits(dict[i])+" ")
+      print("0b"+decimal_binary_32bits(dict[i]),end=" ")
+    #   f.write("0b"+decimal_binary_32bits(dict[i])+" ")
+    print("\n")
     return PC
 
 
@@ -208,12 +209,12 @@ def s_type(instruction):
     # print("Data Memory:")
     # for address, value in data_memory.items():
     #     print(f'{(address)}: {value}')
-    #print("0b"+decimal_binary_32bits(PC)+" ")
-    f.write("0b"+decimal_binary_32bits(PC)+" ")
+    print("0b"+decimal_binary_32bits(PC)+" ",end=" ")
+    # f.write("0b"+decimal_binary_32bits(PC)+" ")
     for i in list(dict.keys()):
-      #print("0b"+decimal_binary_32bits(dict[i])+" ")
-      f.write("0b"+decimal_binary_32bits(PC)+" ")
-
+        print("0b"+decimal_binary_32bits(dict[i]),end=" ")
+    #   f.write("0b"+decimal_binary_32bits(PC)+" ")
+    print("\n")
     return PC
 
 # def s_type(instruction):
@@ -249,11 +250,12 @@ def j_type(instruction):
 
     PC+=imm_value
     #print program counter
-    #print("0b"+decimal_binary_32bits(PC)+" ")
-    f.write("0b"+decimal_binary_32bits(PC)+" ")
+    print("0b"+decimal_binary_32bits(PC),end=" ")
+    # f.write("0b"+decimal_binary_32bits(PC)+" ")
     for i in list(dict.keys()):
-      #print("0b"+decimal_binary_32bits(dict[i])+" ")
-      f.write("0b"+decimal_binary_32bits(dict[i])+" ")
+        print("0b"+decimal_binary_32bits(dict[i]),end=" ")
+    #   f.write("0b"+decimal_binary_32bits(dict[i])+" ")
+    print("\n")
     return PC
 
 
@@ -273,11 +275,12 @@ def u_type(instruction):
     dict[registers[rd]] = (result)
     PC+=4
     #print program counter
-    #print("0b"+decimal_binary_32bits(PC))
-    f.write("0b"+decimal_binary_32bits(PC)+" ")
+    print("0b"+decimal_binary_32bits(PC),end=" ")
+    # f.write("0b"+decimal_binary_32bits(PC)+" ")
     for i in list(dict.keys()):
-      #print("0b"+decimal_binary_32bits(dict[i]))
-      f.write("0b"+decimal_binary_32bits(PC)+" ")
+        print("0b"+decimal_binary_32bits(dict[i]),end=" ")
+    #   f.write("0b"+decimal_binary_32bits(PC)+" ")
+    print("\n")
     return PC
 
 def r_type(instruction):
@@ -335,12 +338,13 @@ def r_type(instruction):
 
     PC+=4
     #print program counter
-    #print("0b"+decimal_binary_32bits(PC),sep=" ")
+    print("0b"+decimal_binary_32bits(PC),end=" ")
     #output_file.write("0b"+decimal_binary_32bits(PC)+" ")
-    f.write("0b"+decimal_binary_32bits(PC)+" ")
+    # f.write("0b"+decimal_binary_32bits(PC)+" ")
     for i in list(dict.keys()):
-      #print("0b"+decimal_binary_32bits(dict[i]),sep=" ")
-      f.write("0b"+decimal_binary_32bits(dict[i])+" ")
+        print("0b"+decimal_binary_32bits(dict[i]),end=" ")
+    #   f.write("0b"+decimal_binary_32bits(dict[i])+" ")
+    print("\n")
     return PC
 
 
@@ -370,11 +374,12 @@ def i_type(instruction):
 
     PC += 4
 
-    #print("0b"+decimal_binary_32bits(PC))
-    f.write("0b"+decimal_binary_32bits(PC)+" ")
+    print("0b"+decimal_binary_32bits(PC),end=" ")
+    # f.write("0b"+decimal_binary_32bits(PC)+" ")
     for i in list(dict.keys()):
-        #print("0b"+decimal_binary_32bits(dict[i]))
-        f.write("0b"+decimal_binary_32bits(dict[i])+" ")
+        print("0b"+decimal_binary_32bits(dict[i]),end=" ")
+        # f.write("0b"+decimal_binary_32bits(dict[i])+" ")
+    print("\n")
     return PC
 
 
@@ -426,7 +431,7 @@ l1=[]
 l2=[]
 dict1={}
 #with open(r"C:\Users\garvi\OneDrive\Desktop\GARVIT\study material\co_project_w24\s_test3.txt","r") as f:
-with open(input_file,"r") as f:
+with open(r"C:\Users\HP\OneDrive\Desktop\testing\s_test1.txt","r") as f:
     data=f.readlines()
     count=0
     for lines in data:
@@ -435,10 +440,11 @@ with open(input_file,"r") as f:
         #l1.append(lines.strip())
         #lines=(lines.strip())
         #dict1[l1.index(lines)*4]=lines
-        dict1[count*4]=lines
-        lines=int(lines)
-        l2.append(f'0x{lines:0>8X}')
-        count+=1
+        if(lines != ''):
+            dict1[count*4]=lines
+            lines=int(lines)
+            l2.append(f'0x{lines:0>8X}')
+            count+=1
 
 #for key in dict1:
 #    print(key,dict1[key])
@@ -461,7 +467,6 @@ for i in range(32):
 for i in range(32):
     address = f'0x{int(0x00100000 + i * 4):08X}'  # Data memory starts at address 0x001 0000
     data_memory[address] = '0x00000000'  # Initialize data memory locations to zeros
-
 
 
 PC=0
@@ -500,8 +505,8 @@ PC=0
 #     elif temp=="U":
 #         PC=u_type(instruction)
 #output_file = open(r"C:\Users\garvi\OneDrive\Desktop\GARVIT\study material\co_project_w24\s_output.txt", "w")
-with open(output_file,'w') as f:
-    while (PC <= (len(l1) - 1) * 4) :
+# with open(r"C:\Users\HP\OneDrive\Desktop\testing\output.txt",'w') as f:
+while (PC <= (len(l1) - 1) * 4) :
         instruction = dict1[PC]
         if (str(instruction)=="00000000000000000000000001100011"):
             break
@@ -514,21 +519,37 @@ with open(output_file,'w') as f:
         temp = opcode[opcode_value]
         #print("Temp:", temp)  # Print the type of instruction (R, S, I, J, B, U)
         if temp == "R":
+            print("R")
+            print(data_memory)
+            
             PC = r_type(instruction)
         elif temp == "S":
+            print("S")
+            print(data_memory)
             PC = s_type(instruction)
         elif temp == "I":
+            print("I")
+            print(data_memory)
             PC = i_type(instruction)
         elif temp == "J":
+            print("J")
+            print(data_memory)
             PC = j_type(instruction)
         elif temp == "B":
+            print("B")
+            print(data_memory)
             PC = b_type(instruction)
         elif temp == "U":
+            print("U")
+            print(data_memory)
             PC = u_type(instruction)
         #print("PC:", PC)  # Print the updated value of the program counter after executing the instruction
     
-    for key in data_memory:
-        f.write(str(key)+':'+str(data_memory[key])+'\n')
+
+print(data_memory)
+for key in data_memory:
+    # f.write(str(key)+':'+str(data_memory[key])+'\n')
+    print(str(key)+':'+str(data_memory[key])+'\n')
 
 """while PC <= (len(l1) - 1) * 4:
     instruction = dict1[PC]
