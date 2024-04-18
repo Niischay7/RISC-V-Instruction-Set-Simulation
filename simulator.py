@@ -1,580 +1,377 @@
-# import sys
-# input_file=sys.argv[1]
-# output_file=sys.argv[2]
+import sys
+import os
 
-def unsigned(value):
-    # Check if the value is less than 0
-    if value < 0:
-        # Return the equivalent positive value for unsigned comparison
-        return 2**32 + value
+def sext(imm):
+    if imm[0] == '0':
+            imm = '0'*(32-len(imm)) + imm
     else:
-        return value
-
-
-# def sext(value):
-#     # Calculate the number of bits needed for sign extension
-#     num_bits = value.bit_length()
-
-#     # Sign-extend the value to 32 bits based on the calculated number of bits
-#     sign_bit = value & (1 << (num_bits - 1))
-#     mask = (1 << num_bits) - 1
-#     extension_bits = 32 - num_bits
-#     sign_extended_value = value & mask  # Extract the value's bits within the specified range
-#     sign_extended_value |= -(sign_bit << extension_bits)  # Apply sign extension
-#     return sign_extended_value
-
-def signed_binary_to_int(signed_binary_str):
-    # Check if the most significant bit is 1 (indicating a negative number)
-    if signed_binary_str[0] == '1':
-        # Calculate the two's complement value for negative numbers
-        twos_complement = ''.join('1' if bit == '0' else '0' for bit in signed_binary_str[1:])
-        # Convert the two's complement to an integer and negate it
-        return -(int(twos_complement, 2) + 1)
+        imm = '1'*(32-len(imm)) + imm
+    return imm
+def decimaltobinary(num):
+    num1=num
+    num=int(num1)
+    if num >= 0:
+        a = num
+        c=""
+        s = ""
+        while a != 0:
+            b = a%2
+            d=s+str(b)
+            s = s + str(b)
+            d = a//2
+            a=d
+        s = s[::-1]
+        filler = 32 - len(s)
+        if filler <= 0:
+            s=str('-1')
+            return s
+        s = filler*"0" + s
+        return s
     else:
-        # If the most significant bit is 0, convert the binary string to an integer
-        return int(signed_binary_str, 2)
-
-opcode={"0110011":"R",
-        "0000011":"I","0010011":"I","0010011":"I","1100111":"I",
-        "0100011":"S",
-        "1100011":"B",
-        "0110111":"U","0010111":"B",
-        "1101111":"J"}
-
-dict = {
-    'zero': 0,
-    'ra': 0,
-    'sp': 256,
-    'gp': 0,
-    'tp': 0,
-    't0': 0,
-    't1': 0,
-    't2': 0,
-    's0': 0,
-    's1': 0,
-    'a0': 0,
-    'a1': 0,
-    'a2': 0,
-    'a3': 0,
-    'a4': 0,
-    'a5': 0,
-    'a6': 0,
-    'a7': 0,
-    's2': 0,
-    's3': 0,
-    's4': 0,
-    's5': 0,
-    's6': 0,
-    's7': 0,
-    's8': 0,
-    's9': 0,
-    's10': 0,
-    's11': 0,
-    't3': 0,
-    't4': 0,
-    't5': 0,
-    't6': 0
-}
-
-
-registers={'00000': 'zero',
-           '00001': 'ra',
-           '00010': 'sp',
-           '00011': 'gp',
-           '00100': 'tp',
-           '00101': 't0',
-           '00110': 't1',
-           '00111': 't2',
-           '01000': 's0',
-           '01001': 's1',
-           '01010': 'a0',
-           '01011': 'a1',
-           '01100': 'a2',
-           '01101': 'a3',
-           '01110': 'a4',
-           '01111': 'a5',
-           '10000': 'a6',
-           '10001': 'a7',
-           '10010': 's2',
-           '10011': 's3',
-           '10100': 's4',
-           '10101': 's5',
-           '10110': 's6',
-           '10111': 's7',
-           '11000': 's8',
-           '11001': 's9',
-           '11010': 's10',
-           '11011': 's11',
-           '11100': 't3',
-           '11101': 't4',
-           '11110': 't5',
-           '11111': 't6'}
-
-
-
-# print("Program Memory:")
-# for address, instruction in program_memory.items():
-#     print(f'{address}: {instruction}')
-
-# print("\nStack Memory:")
-# for address, value in stack_memory.items():
-#     print(f'{address}: {value}')
-
-# print("\nData Memory:")
-# for address, value in data_memory.items():
-#     print(f'{address}: {value}')
-
-
-def b_type(instruction):
-    global dict
-    global PC
-    immediate=instruction[0]+instruction[24]+instruction[1:7]+instruction[20:24]+'0'
-    #immediate=instruction[0]*20+instruction[24]+instruction[1:7]+instruction[20:24]+'0'
-    rs2=instruction[7:12]
-    rs1=instruction[12:17]
-    func3=instruction[17:20]
-    opcode=instruction[25:]
-
-    if(func3=="000"):
-        if(registers[rs1]=='zero' and registers[rs2]=='zero' and signed_binary_to_int(immediate)==0):
-            #print("0b"+decimal_binary_32bits(PC)+" ")
-            f.write("0b"+decimal_binary_32bits(PC)+" ")
-            for i in list(dict.keys()):
-                #print("0b"+decimal_binary_32bits(dict[i])+" ")
-                f.write("0b"+decimal_binary_32bits(dict[i])+" ")
-            return PC
-
-        else:
-            if(dict[registers[rs1]]==dict[registers[rs2]]):
-                PC+= signed_binary_to_int(immediate)
-            else:
-                PC+=4
-
-    elif(func3=="001"):
-        if(dict[registers[rs1]]!=dict[registers[rs2]]):
-            PC+= signed_binary_to_int(immediate)
-        else:
-            PC+=4
-
-    elif(func3=="100"):
-        if(dict[registers[rs1]]<dict[registers[rs2]]):
-            PC+= signed_binary_to_int(immediate)
-        else:
-            PC+=4
-
-    elif(func3=="101"):
-        if(dict[registers[rs1]]>dict[registers[rs2]]):
-            PC+= signed_binary_to_int(immediate)
-        else:
-            PC+=4
-
-    elif(func3=="110"):
-        if(dict[registers[rs1]]<dict[registers[rs2]]):
-            PC+= signed_binary_to_int(immediate)
-        else:
-            PC+=4
-
-    elif(func3=="111"):
-        if(dict[registers[rs1]]>dict[registers[rs2]]):
-            PC+= signed_binary_to_int(immediate)
-        else:
-            PC+=4
-    #print program counter
-
-    print("0b"+decimal_binary_32bits(PC),end=" ")
-    # f.write("0b"+decimal_binary_32bits(PC)+" ")
-    for i in list(dict.keys()):
-      print("0b"+decimal_binary_32bits(dict[i]),end=" ")
-    #   f.write("0b"+decimal_binary_32bits(dict[i])+" ")
-    print("\n")
-    return PC
-
-
-def s_type(instruction):
-    global dict, data_memory, PC
-
-    opcode_value = instruction[25:]
-    imm = instruction[0:7] + instruction[20:25]
-    imm_value = signed_binary_to_int(imm)
-
-    rs2 = registers[instruction[7:12]]
-    rs1 = registers[instruction[12:17]]
-
-    if opcode_value == '0100011':
-        offset = dict[rs1] + imm_value
-        data_memory[offset] = dict[rs2]
-
-    PC += 4
-
-    # print("Data Memory:")
-    # for address, value in data_memory.items():
-    #     print(f'{(address)}: {value}')
-    print("0b"+decimal_binary_32bits(PC)+" ",end=" ")
-    # f.write("0b"+decimal_binary_32bits(PC)+" ")
-    for i in list(dict.keys()):
-        print("0b"+decimal_binary_32bits(dict[i]),end=" ")
-    #   f.write("0b"+decimal_binary_32bits(PC)+" ")
-    print("\n")
-    return PC
-
-# def s_type(instruction):
-#     global dict, data_memory, PC
-
-#     imm = instruction[0:7] + instruction[]  # Immediate value, 7 bits
-#     imm_value = signed_binary_to_int(imm)
-
-#     rs2 = registers[instruction[7:12]]  # Source register 2
-#     rs1 = registers[instruction[12:17]]  # Source register 1
-
-#     funct3 = instruction[17:20]  # Funct3 code, 3 bits
-
-#     offset = imm_value + dict[rs1]  # Calculate offset as imm + value in rs1
-#     data_memory[offset] = dict[rs2]  # Store rs2 value at calculated memory address
-
-#     PC += 4  # Increment program counter by 4 for next instruction
-
-#     # Print updated program counter and data memory
-#     print("PC:", PC)
-#     print("Data Memory:")
-#     for address, value in data_memory.items():
-#         print(f'{hex(address)}: {value}')
-
-#     return PC
-
-def j_type(instruction):
-    global dict, PC
-    rd=instruction[20:25]
-    imm=instruction[0]+instruction[12:20]+instruction[11]+instruction[1:11]+'0'
-    imm_value = signed_binary_to_int(imm)
-    dict[registers[rd]] = int(PC) + 4
-
-    PC+=imm_value
-    #print program counter
-    print("0b"+decimal_binary_32bits(PC),end=" ")
-    # f.write("0b"+decimal_binary_32bits(PC)+" ")
-    for i in list(dict.keys()):
-        print("0b"+decimal_binary_32bits(dict[i]),end=" ")
-    #   f.write("0b"+decimal_binary_32bits(dict[i])+" ")
-    print("\n")
-    return PC
-
-
-
-def u_type(instruction):
-    global dict,PC
-    imm = instruction[0:20]
-    imm_value = signed_binary_to_int(imm)
-    opcode = instruction[25:]
-    rd = instruction[20:25]
-
-    if opcode == "0110111":
-        result = imm_value
-    elif opcode == "0010111":
-        result = int(PC) + imm_value
-
-    dict[registers[rd]] = (result)
-    PC+=4
-    #print program counter
-    print("0b"+decimal_binary_32bits(PC),end=" ")
-    # f.write("0b"+decimal_binary_32bits(PC)+" ")
-    for i in list(dict.keys()):
-        print("0b"+decimal_binary_32bits(dict[i]),end=" ")
-    #   f.write("0b"+decimal_binary_32bits(PC)+" ")
-    print("\n")
-    return PC
-
-def r_type(instruction):
-    global dict_registers, PC
-    func3 = instruction[17:20]
-    func7 = instruction[0:7]
-    rd = registers[instruction[20:25]]
-    rs1 = registers[instruction[12:17]]
-    rs2 = registers[instruction[7:12]]
-
-    if func3 == '000' and func7 == '0000000':
-        dict[rd] = dict[rs1] + dict[rs2]
-
-    elif func3 == '000' and func7 == '0100000' and rs1 == "00000":
-        dict[rd] = 0 - dict[rs2]  # Two’s complement
-
-    elif func3 == '000' and func7 == '0100000':
-        dict[rd] = dict[rs1] - dict[rs2]  # signed(rs1) - signed(rs2)
-
-    elif func3 == '001' and func7 == '0000000':
-        if dict[rs1] < dict[rs2]:
-            dict[rd] = 1
-        else:
-            dict[rd] = 0
-
-    elif func3 == '010' and func7 == '0000000':
-        if (dict[rs1]) < (dict[rs2]):
-            dict[rd] = 1
-        else:
-            dict[rd] = 0
-
-    elif func3 == '100' and func7 == '0000000':
-        dict[rd] = int(dict[rs1]) ^ int(dict[rs2])  # Bitwise Exor
-
-    elif func3 == '101' and func7 == '0000000':
-        shift_count_int = (dict[rs2])
-        shift_count_bin = decimal_binary_32bits(shift_count_int) 
-        shift_count_bin = shift_count_bin[27:]
-        shift_count = int(shift_count_bin,2)
-        # Ensure shift count is non-negative
-        shift_count = max(shift_count, 0)
-        dict[rd] = dict[rs1] << shift_count  # Left shift rs1 by the non-negative value in lower 5 bits of rs2
-
-    elif func3 == '101' and func7 == '0100000':
-        shift_count = (dict[rs2][0:5])
-        # Ensure shift count is non-negative
-        shift_count = max(shift_count, 0)
-        dict[rd] = dict[rs1] >> shift_count  # Right shift rs1 by the non-negative value in lower 5 bits of rs2
-
-    elif func3 == '110' and func7 == '0000000':
-        dict[rd] = int(dict[rs1]) | int(dict[rs2])  # Bitwise logical or.
-
-    elif func3 == '111' and func7 == '0000000':
-        dict[rd] = int(dict[rs1]) & int(dict[rs2])  # Bitwise logical and.
-
-    PC+=4
-    #print program counter
-    print("0b"+decimal_binary_32bits(PC),end=" ")
-    #output_file.write("0b"+decimal_binary_32bits(PC)+" ")
-    # f.write("0b"+decimal_binary_32bits(PC)+" ")
-    for i in list(dict.keys()):
-        print("0b"+decimal_binary_32bits(dict[i]),end=" ")
-    #   f.write("0b"+decimal_binary_32bits(dict[i])+" ")
-    print("\n")
-    return PC
-
-
-
-def i_type(instruction):
-    global dict, data_memory, PC
-
-    opcode_value = instruction[25:]
-    imm = instruction[0:12]
-    imm_value = signed_binary_to_int(imm)
-
-    rd = registers[instruction[20:25]]
-    rs1 = registers[instruction[12:17]]
-
-    if opcode_value == '0000011':
-        offset = dict[rs1] + imm_value
-        dict[rd] = data_memory[offset]
-
-    elif opcode_value == '0010011':
-        dict[rd] = dict[rs1] + imm_value
-
-    elif opcode_value == '1100111':
-        dict[rd] = PC + 4
-        PC = (dict['t1'] + imm_value) & 0xFFFFFFFE
-        # Ensure PC becomes zero if calculated PC value is odd
-        PC &= 0xFFFFFFFE
-
-    PC += 4
-
-    print("0b"+decimal_binary_32bits(PC),end=" ")
-    # f.write("0b"+decimal_binary_32bits(PC)+" ")
-    for i in list(dict.keys()):
-        print("0b"+decimal_binary_32bits(dict[i]),end=" ")
-        # f.write("0b"+decimal_binary_32bits(dict[i])+" ")
-    print("\n")
-    return PC
-
-
-def complement(binarynumber):
-    ans = ""
-    while binarynumber and binarynumber[-1] != "1":
-        ans = binarynumber[-1] + ans
-        binarynumber = binarynumber[0:-1]
-    ans = binarynumber[-1] + ans
-    binarynumber = binarynumber[0:-1]
-
-    while binarynumber:
-        if binarynumber[-1] == "0":
-            ans = "1" + ans
-        elif binarynumber[-1] == "1":
-            ans = "0" + ans
-        binarynumber = binarynumber[0:-1]
-    return ans
-
-def decimal_binary_32bits(b):
-    a = int(b)
-    if a > 0:
-        ans = ""
-        cnt = 0
-        while a != 0:
-            ans = str(a % 2) + ans
-            a = a // 2
+        z = abs(num)
+        s = ""
+        cnt = 1
+        c=1
+        temp = z
+        while temp != 0 and c==1:
             cnt += 1
-        ans = "0" * (32 - cnt) + ans
-        return ans
-    elif a == 0:
-        answer = 32 * "0"
-        return answer
-    elif a < 0:
-        a = abs(a)
-        ans = ""
-        cnt = 0
-        while a != 0:
-            ans = str(a % 2) + ans
-            a = a // 2
-            cnt += 1
-        ans = "1" * (32 - cnt) + ans
-        ans = complement(ans)
-    return ans
-
-
-
-l1=[]
-l2=[]
-dict1={}
-#with open(r"C:\Users\garvi\OneDrive\Desktop\GARVIT\study material\co_project_w24\s_test3.txt","r") as f:
-with open(r"C:\Users\HP\OneDrive\Desktop\testing\s_test1.txt","r") as f:
-    data=f.readlines()
-    count=0
-    for lines in data:
-        lines=lines.strip()
-        l1.append(lines)
-        #l1.append(lines.strip())
-        #lines=(lines.strip())
-        #dict1[l1.index(lines)*4]=lines
-        if(lines != ''):
-            dict1[count*4]=lines
-            lines=int(lines)
-            l2.append(f'0x{lines:0>8X}')
-            count+=1
-
-#for key in dict1:
-#    print(key,dict1[key])
-
-
-program_memory = {}
-stack_memory = {}
-data_memory = {}
-
-
-# for i in range(64):
-#     address = f'0x{int(i):04X}'
-#     program_memory[address] = f'0x{l2[i]}'  # Assuming l1 contains instruction in hexadecimal format
-
-for i in range(32):
-    address = f'0x{int(256 + i * 4):04X}'  # Stack memory starts at address 0x0000 0100
-    stack_memory[address] = '0x00000000'  # Initialize stack memory locations to zeros
-
-
-for i in range(32):
-    address = f'0x{int(0x00100000 + i * 4):08X}'  # Data memory starts at address 0x001 0000
-    data_memory[address] = '0x00000000'  # Initialize data memory locations to zeros
-
-
-PC=0
-# print((len(l1)-1)*4)
-# while(PC<=(len(l1)-1)*4):
-#     instruction=dict1[PC]
-#     opcode_value=instruction[25:]
-#     temp=opcode[opcode_value]
-#     if temp=="R":
-#         PC=r_type(instruction)
-#     elif temp=="S":
-#         PC=s_type(instruction)
-#     elif temp=="I":
-#         PC=i_type(instruction)
-#     elif temp=="J":
-#         PC=j_type(instruction)
-#     elif temp=="B":
-#         PC=b_type(instruction)
-#     elif temp=="U":
-#         PC=u_type(instruction)
-
-# while(True and PC<=(len(l1)-1)*4):
-#     instruction=dict1[PC]
-#     opcode_value=instruction[25:]
-#     temp=opcode[opcode_value]
-#     if temp=="R":
-#         PC=r_type(instruction)
-#     elif temp=="S":
-#         PC=s_type(instruction)
-#     elif temp=="I":
-#         PC=i_type(instruction)
-#     elif temp=="J":
-#         PC=j_type(instruction)
-#     elif temp=="B":
-#         PC=b_type(instruction)
-#     elif temp=="U":
-#         PC=u_type(instruction)
-#output_file = open(r"C:\Users\garvi\OneDrive\Desktop\GARVIT\study material\co_project_w24\s_output.txt", "w")
-# with open(r"C:\Users\HP\OneDrive\Desktop\testing\output.txt",'w') as f:
-while (PC <= (len(l1) - 1) * 4) :
-        instruction = dict1[PC]
-        if (str(instruction)=="00000000000000000000000001100011"):
-            break
-        #elif (str(instruction)=="00000000000000000000000001100011" and len(l1)!=(PC//4)+1):
-            #print("error")
-            #break
-        #print("Instruction:", instruction)  # Print the current instruction being executed
-        opcode_value = instruction[25:]
-        #print("Opcode value:", opcode_value)  # Print the opcode value of the instruction
-        temp = opcode[opcode_value]
-        #print("Temp:", temp)  # Print the type of instruction (R, S, I, J, B, U)
-        if temp == "R":
-            print("R")
-            print(data_memory)
+            temp = temp//2
+        a = (2**cnt) - z
+        while a != 0 and c==1:
             
-            PC = r_type(instruction)
-        elif temp == "S":
-            print("S")
-            print(data_memory)
-            PC = s_type(instruction)
-        elif temp == "I":
-            print("I")
-            print(data_memory)
-            PC = i_type(instruction)
-        elif temp == "J":
-            print("J")
-            print(data_memory)
-            PC = j_type(instruction)
-        elif temp == "B":
-            print("B")
-            print(data_memory)
-            PC = b_type(instruction)
-        elif temp == "U":
-            print("U")
-            print(data_memory)
-            PC = u_type(instruction)
-        #print("PC:", PC)  # Print the updated value of the program counter after executing the instruction
+            c=1
+            s = s + str(a%2)
+            a = a//2
+        s = s[::-1]
+        filler = 32 - len(s)
+        if filler <= 0 and c==1:
+            
+            s='-1'
+            s=str(s)
+            return s
+        s = filler*"1" + s
+        return s 
     
 
-print(data_memory)
-for key in data_memory:
-    # f.write(str(key)+':'+str(data_memory[key])+'\n')
-    print(str(key)+':'+str(data_memory[key])+'\n')
+def printt(imm):
+    print(imm/2)
+def signed_conversion(imm):
+    return -(int(''.join('1' if bit == '0' else '0' for bit in imm), 2) + 1) if imm[0] == '1' else int(imm, 2)
 
-"""while PC <= (len(l1) - 1) * 4:
-    instruction = dict1[PC]
-    opcode_value = instruction[25:]
-    print("Instruction:", instruction)  # Print the current instruction being executed
-    print("Opcode value:", opcode_value)  # Print the opcode value of the instruction
-    temp = opcode[opcode_value]
-    print("Temp:", temp)  # Print the type of instruction (R, S, I, J, B, U)
-    
-    if temp == "R":
-        PC = r_type(instruction)
-    elif temp == "S":
-        PC = s_type(instruction)
-    elif temp == "I":
-        PC = i_type(instruction)
-    elif temp == "J":
-        PC = j_type(instruction)
-    elif temp == "B":
-        PC = b_type(instruction)
-    elif temp == "U":
-        PC = u_type(instruction)
-    
-    print("PC:", PC)  # Print the updated value of the program counter after executing the instruction
 
-    if instruction == "00000000000000000000000001100011" and PC == (len(l1) - 1) * 4:
-        print("Found virtual halt instruction at end of code")
-        break
-"""
+def beq(rs1, rs2, imm, pc):
+    
+    if signed_conversion(sext(rs1)) != signed_conversion(sext(rs2)):
+        pc += 4                               
+    else:
+        pc+=signed_conversion(imm)                               
+    return pc
+
+
+def bne(rs1, rs2, imm, pc): 
+    
+    
+    if signed_conversion(sext(rs1)) == signed_conversion(sext(rs2)):
+        pc += 4 
+                                     
+    else:
+        pc += signed_conversion(imm)                             
+    return pc
+
+def bge(rs1, rs2, imm, pc):
+    
+   
+    if signed_conversion(sext(rs1)) < signed_conversion(sext(rs2)):
+        
+        pc += 4                                
+    else:
+        pc += signed_conversion(imm)                              
+    return pc
+
+def blt(rs1, rs2, imm, pc):
+    
+    if signed_conversion(sext(rs1)) < signed_conversion(sext(rs2)):
+        pc += signed_conversion(imm)                             
+    else:
+        pc += 4                                                                      
+    return pc
+def B(i, pc, reg_dic):
+    ti = i[::-1]
+    c=0
+ 
+    func3=ti[12:15]
+    func3 = ti[12:15][::-1]
+    rs1=ti[15:20]
+    rs1 = ti[15:20][::-1]
+    rs2=ti[20:25]
+    rs2 = ti[20:25][::-1]
+    if func3 == "000" and c==0:
+        pc = beq(reg_dic[rs1], reg_dic[rs2], sext(i[0] + ti[7] + i[1:7] + ti[8:12][::-1] + '0'), pc)
+    if func3 == "001" and c==0:
+        pc = bne(reg_dic[rs1], reg_dic[rs2], sext(i[0] + ti[7] + i[1:7] + ti[8:12][::-1] + '0'), pc)
+    if func3 == "100" and c==0:
+        pc = blt(reg_dic[rs1], reg_dic[rs2], sext(i[0] + ti[7] + i[1:7] + ti[8:12][::-1] + '0'), pc)
+    if func3 == "101" and c==0:
+        pc = bge(reg_dic[rs1], reg_dic[rs2], sext(i[0] + ti[7] + i[1:7] + ti[8:12][::-1] + '0'), pc)
+    return pc                               
+
+def add(rd, rs1, rs2, pc, reg_dic):
+    
+    res=signed_conversion(sext(rs1))+signed_conversion(sext(rs2))
+    reg_dic[rd] = decimaltobinary(res)   
+    return pc + 4                              
+
+ 
+def sub(rd, rs1, rs2, pc, reg_dic):
+    
+    res=signed_conversion(sext(rs1))-signed_conversion(sext(rs2))
+    reg_dic[rd] = decimaltobinary(res)  
+    return pc + 4                              
+
+def slt(rd, rs1, rs2, pc, reg_dic):
+    if signed_conversion(sext(rs1)) < signed_conversion(sext(rs2)):
+        reg_dic[rd] = decimaltobinary(1)
+    return pc + 4                              
+def sltu(rd, rs1, rs2, pc, reg_dic):
+
+    if rs1 < rs2 and pc>0:
+        reg_dic[rd] = decimaltobinary(1)
+    return pc + 4                              
+def xor(rd, rs1, rs2, pc, reg_dic):
+    ra=rd
+    reg_dic[ra] = decimaltobinary(rs1 ^ rs2)
+    return pc + 4                              
+
+def sll(rd, rs1, rs2, pc, reg_dic):
+    rs2 = rs2[-5:]
+    ra=rs2
+    rb=rs1
+    reg_dic[rd] = decimaltobinary(int(rb, 2) << int(ra, 2))
+    return pc + 4                              
+
+
+def srl(rd, rs1, rs2, pc, reg_dic):
+    rs2 = rs2[-5:]          
+    ra=rs2
+    rb=rs1                   
+    reg_dic[rd] = decimaltobinary(int(rb, 2) >> int(ra, 2))
+    return pc + 4                              
+def or_(rd, rs1, rs2, pc, reg_dic):
+    ra=rs2
+    rb=rs1      
+    reg_dic[rd] = decimaltobinary(int(rb,2) | int(ra, 2))
+    return pc + 4                              
+def and_(rd, rs1, rs2, pc, reg_dic):
+    ra=rs2
+    rb=rs1      
+    reg_dic[rd] = decimaltobinary(int(rb, 2) & int(ra, 2))
+    return pc + 4                             
+
+def R(i, pc, reg_dic):
+    ti = i[::-1]
+    rd = ti[7:12][::-1]
+    rs1 = ti[15:20][::-1]
+    rs2 = ti[20:25][::-1]
+    funct3 = ti[12:15][::-1]
+    funct7 = i[:7]  
+    c=1
+    if (funct3 == "000") and (funct7 == "0000000") and c==1 :
+        pc = add(rd, reg_dic[rs1], reg_dic[rs2], pc, reg_dic)
+    if (funct3 == "000") and (funct7 == "0100000") and c==1:
+        pc = sub(rd, reg_dic[rs1], reg_dic[rs2], pc, reg_dic)
+    if (funct3 == "010") and (funct7 == "0000000") and c==1:
+        pc = slt(rd, reg_dic[rs1], reg_dic[rs2], pc, reg_dic)
+    if (funct3 == "011") and (funct7 == "0000000") and c==1:
+        pc = sltu(rd, reg_dic[rs1], reg_dic[rs2], pc, reg_dic)
+    if (funct3 == "100") and (funct7 == "0000000") and c==1:
+        pc = xor(rd, reg_dic[rs1], reg_dic[rs2], pc, reg_dic)
+    if (funct3 == "001") and (funct7 == "0000000") and c==1:
+        pc = sll(rd, reg_dic[rs1], reg_dic[rs2], pc, reg_dic)
+    if (funct3 == "101") and (funct7 == "0000000") and c==1:
+        pc = srl(rd, reg_dic[rs1], reg_dic[rs2], pc, reg_dic)
+    if (funct3 == "110") and (funct7 == "0000000") and c==1:
+        pc = or_(rd, reg_dic[rs1], reg_dic[rs2], pc, reg_dic)
+    if (funct3 == "111") and (funct7 == "0000000") and c==1:
+        pc = and_(rd, reg_dic[rs1], reg_dic[rs2], pc, reg_dic)
+    return pc
+
+def lw(rd, rs1, imm, pc, reg_dic, mem_dic):        
+    rs1 = signed_conversion(rs1)
+    rs1 = f"0x{rs1:08X}"          
+    
+    imm = signed_conversion(imm)
+    immt = f"0x{imm:08X}"
+    t= hex(int(rs1[2:], 16) + int(immt[2:], 16))
+    t32 = f"0x{int(t, 16):08X}"
+
+    
+    reg_dic[rd] = mem_dic[t32.lower()]             
+    return pc + 4                             
+def addi(rd, rs1, imm, pc, reg_dic):
+    
+    reg_dic[rd] = decimaltobinary(signed_conversion(sext(rs1)) + signed_conversion(imm) )  
+    return pc + 4                              
+
+def jalr(rd, x6, imm, pc, reg_dic):
+    reg_dic[rd] = decimaltobinary(pc + 4)      
+    
+    pc = decimaltobinary(signed_conversion(x6) + signed_conversion(imm))           
+    pc = pc[:-1]
+    pc+="0"
+    pc = int(pc, 2)                        
+    return pc 
+
+def I(i, pc, reg_dic, mem_dic):
+    ti = i[::-1]
+    imm = sext(i[:12])
+    func3 = ti[12:15][::-1]
+ 
+    opcode = i[-7:]
+    if (func3 == "010") and (opcode == "0000011"):
+        pc = lw(ti[7:12][::-1], reg_dic[ti[15:20][::-1] ], imm, pc, reg_dic, mem_dic)
+    if func3 == "000" and (opcode == "0010011"):
+        pc = addi(ti[7:12][::-1], reg_dic[ti[15:20][::-1] ], imm, pc, reg_dic)
+    if func3 == "000" and (opcode == "1100111"):
+        pc = jalr(ti[7:12][::-1], reg_dic[ti[15:20][::-1] ], imm, pc, reg_dic)
+    return pc
+
+def S_sw(i, pc, reg_opc_to_mem_add, mem_dic):
+    ti = i[::-1]
+    
+    
+    imm = signed_conversion(sext(i[:7]+i[20:25]))
+    
+    rs1 = ti[15:20][::-1]                        
+    rs1 = signed_conversion(sext(reg_dic[rs1]))  
+    num = f"0x{rs1+imm:08X}"
+    rs2 = ti[20:25][::-1]
+   
+    mem_dic[num.lower()] = reg_dic[rs2]
+    
+    return pc + 4                                                          
+
+def lui(rd, imm, pc, reg_dic):
+
+    reg_dic[rd] = decimaltobinary(signed_conversion(imm))  
+    return pc + 4                            
+
+def aiupc(rd, imm, pc, reg_dic):
+    
+   
+    reg_dic[rd] = decimaltobinary(signed_conversion(imm)+pc)
+    return pc + 4                           
+
+def U(i, pc, reg_dic):
+    c=0
+    ti = i[::-1]
+    imm = ti[12:][::-1]+"000000000000"
+    rd = ti[7:12][::-1]
+    opcode = i[-7:]
+    if opcode == "0110111" and c==0:
+        pc = lui(rd, imm, pc, reg_dic)
+    if opcode == "0010111" and c==0:
+        pc = aiupc(rd, imm, pc, reg_dic)
+    return pc
+
+def J_jal(i, pc, reg_dic):
+    ti = i[::-1]
+    
+    imm = signed_conversion(sext(i[0] + ti[12:20][::-1] + ti[20] + i[1:11]))
+    reg_dic[ti[7:12][::-1]] = decimaltobinary(pc + 4)     
+    pc = decimaltobinary(pc + imm)           
+    pc = pc[:-1] + "0"
+    pc=int(pc,2)
+    return pc                                                                           
+
+def simulator(reg_dic, mem_dic, pc_dic, reg_opc_to_mem_add):
+    with open(output, "w") as f:
+        pc = 0
+        while (int(pc) <= 252):
+            inst = pc_dic[pc]
+            opc = inst[25:]
+            
+            if inst == "00000000000000000000000001100011":
+                for i in reg_dic.keys():
+                    if i!="_counter":
+                        f.write('0b'+reg_dic[i] + " ") 
+                        
+                    else:
+                        f.write(reg_dic[i] + " ") 
+                f.write("\n")           
+                break
+            if opc == "0110011" and pc>-11111:
+                pc = R(inst, pc, reg_dic)
+            if opc == "0000011" or opc == "0010011" or opc == "1100111" and pc>-11111:
+                pc = I(inst, pc, reg_dic, mem_dic)
+            if opc == "0100011" and pc>-11111:
+                pc = S_sw(inst, pc, reg_opc_to_mem_add, mem_dic)
+            if opc == "1100011" and pc>-11111:
+                pc = B(inst, pc, reg_dic)
+            if opc == "0010111" or opc == "0110111" and pc>-11111:
+                pc = U(inst, pc, reg_dic)
+            if opc == "1101111" and pc>-11111:
+                pc = J_jal(inst, pc, reg_dic)
+            
+            reg_dic["_counter"] = "0b" + decimaltobinary(pc)
+            
+            for i in reg_dic.keys():
+                if i!="_counter":
+                    f.write('0b'+reg_dic[i] + " ")   
+                else:
+                    f.write(reg_dic[i] + " ")  
+            f.write("\n")  
+
+
+
+
+reg_dic = {'_counter': '0b00000000000000000000000000000000', '00000': '00000000000000000000000000000000', '00001': '00000000000000000000000000000000', '00010': '00000000000000000000000100000000', '00011': '00000000000000000000000000000000', '00100': '00000000000000000000000000000000', '00101': '00000000000000000000000000000000', '00110': '00000000000000000000000000000000', '00111': '00000000000000000000000000000000', 
+    '01000': '00000000000000000000000000000000', '01001': '00000000000000000000000000000000', '01010': '00000000000000000000000000000000', '01011': '00000000000000000000000000000000', '01100': '00000000000000000000000000000000', '01101': '00000000000000000000000000000000', '01110': '00000000000000000000000000000000', '01111': '00000000000000000000000000000000', 
+    '10000': '00000000000000000000000000000000', '10001': '00000000000000000000000000000000', '10010': '00000000000000000000000000000000', '10011': '00000000000000000000000000000000', '10100': '00000000000000000000000000000000', '10101': '00000000000000000000000000000000', '10110': '00000000000000000000000000000000', '10111': '00000000000000000000000000000000', 
+    '11000': '00000000000000000000000000000000', '11001': '00000000000000000000000000000000', '11010': '00000000000000000000000000000000', '11011': '00000000000000000000000000000000', '11100': '00000000000000000000000000000000', '11101': '00000000000000000000000000000000', '11110': '00000000000000000000000000000000', '11111': '00000000000000000000000000000000'}
+
+mem_dic = {}
+reg_opc_to_mem_add = {}
+
+
+
+for i in range(32):  
+    address = f'0x{int(0x00010000 + i*4):08X}'.lower() 
+    mem_dic[address] = '0' * 32
+
+mem_keys = list(mem_dic.keys())
+
+keys1 = list(reg_dic.keys())
+keys1.remove('_counter')
+keys2 = list(mem_dic.keys())
+for key1, key2 in zip(keys1, keys2):
+    reg_opc_to_mem_add[key1] = key2
+
+
+
+
+input = sys.argv[1]
+output = sys.argv[2]
+
+
+
+
+with open(input, "r") as input_file:
+
+    if not input_file:
+        sys.exit("Input file is empty")
+    x = input_file.readlines()
+    pc_dic = {}
+    pc = 0
+    
+    for line in x:
+        pc_dic[pc] = line.strip("\n")
+        pc += 4
+
+simulator(reg_dic, mem_dic, pc_dic, reg_opc_to_mem_add)
+
+f = open(output, "a")
+for i in mem_dic.keys():
+    f.write(i + ":" + "0b" + mem_dic[i] + "\n")
+f.close()
+
+sys.exit()
