@@ -98,5 +98,3 @@ Contributions are welcome! Please open an issue or submit a pull request.
 - Inspired by the RISC-V ISA documentation.
 - Special thanks to the open-source community for their contributions and support.
 ```
-
-This README file provides an overview of your project, instructions on how to use the assembler and simulator, and examples of input and output files. You can customize it further based on your specific needs and additional features of your project.
