@@ -1,6 +1,3 @@
-Sure! Here is a README file for your RISC-V assembler and simulator project:
-
-```markdown
 # RISC-V Assembler and Simulator
 
 This project includes an assembler and a simulator for the RISC-V instruction set architecture (ISA). The assembler converts RISC-V assembly code into machine code, and the simulator executes the machine code to simulate the behavior of a RISC-V processor.
